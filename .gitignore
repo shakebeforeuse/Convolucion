@@ -1,0 +1,15 @@
+bin/
+target/
+.make.o/
+*.o
+*.d
+*~
+*.gch
+*.pdf
+*.txt
+
+*.tar.gz
+*.tgz
+
+*.class
+*.jar
