@@ -108,12 +108,14 @@ public class MainGrafico
 		
 		parametros.add(kernelText);
 		
-		nombresKernel = new String[5];
+		nombresKernel = new String[7];
 		nombresKernel[0] = "Identidad";
 		nombresKernel[1] = "Detección de bordes";
 		nombresKernel[2] = "Detección de bordes (2)";
 		nombresKernel[3] = "Detección de bordes (3)";
 		nombresKernel[4] = "Box blur";
+		nombresKernel[5] = "Sharpen";
+		nombresKernel[6] = "Emboss";
 		selectorBox = new JComboBox<String>(nombresKernel);
 		selectorBox.setSelectedIndex(1);
 		
@@ -195,6 +197,30 @@ public class MainGrafico
 						for (int i = 0; i < 3; ++i)
 							for (int j = 0; j < 3; ++j)
 								kernelInput[i][j].setText(String.valueOf(1 / 9.0));
+					break;
+					case 5:
+						//Sharpen
+						kernelInput[0][0].setText("0.0");
+						kernelInput[0][1].setText("-1.0");
+						kernelInput[0][2].setText("0.0");
+						kernelInput[1][0].setText("-1.0");
+						kernelInput[1][1].setText("5.0");
+						kernelInput[1][2].setText("-1.0");
+						kernelInput[2][0].setText("0.0");
+						kernelInput[2][1].setText("-1.0");
+						kernelInput[2][2].setText("0.0");
+					break;
+					case 6:
+						//Sharpen
+						kernelInput[0][0].setText("-2.0");
+						kernelInput[0][1].setText("-1.0");
+						kernelInput[0][2].setText("0.0");
+						kernelInput[1][0].setText("-1.0");
+						kernelInput[1][1].setText("1.0");
+						kernelInput[1][2].setText("1.0");
+						kernelInput[2][0].setText("0.0");
+						kernelInput[2][1].setText("1.0");
+						kernelInput[2][2].setText("2.0");
 					break;
 				}
 			}
