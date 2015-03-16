@@ -3,8 +3,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.Random;
+import java.util.Scanner;
 
-public class Convolucion
+public class Convolucion implements Runnable
 {	
 	public static int ancho;
 	public static int alto;
@@ -22,6 +23,8 @@ public class Convolucion
 	private static Runnable[] tareas;
 	private static Future<?>[] futuros;
 	
+	private int inicio;
+	private int fin;	
 	
 	public Convolucion(double[][] imagen, int nTareas, double[][] kernel)
 	{
@@ -60,6 +63,12 @@ public class Convolucion
 		this(ancho, alto, Runtime.getRuntime().availableProcessors());
 	}
 	
+	private Convolucion(int inicio, int fin, boolean dummy)
+	{
+		this.inicio = inicio;
+		this.fin    = fin;
+	}
+	
 	public void aleatorio()
 	{	
 		for (int i = 0; i < alto; ++i)
@@ -85,7 +94,7 @@ public class Convolucion
 			if ((i+1) == nucleos)
 				finIntervalo = alto;
 			
-			tareas[i] = new ConvolucionWorker(inicioIntervalo, finIntervalo);
+			tareas[i] = new Convolucion(inicioIntervalo, finIntervalo, false);
 		}
 	}
 	
@@ -119,5 +128,81 @@ public class Convolucion
 	{		
 		while (!threadPool.isTerminated())
 			threadPool.shutdown();
+	}
+	
+	public void run()
+	{
+		int despl = (int)kernel.length/2;
+		
+		for (int i = inicio; i < fin; ++i)
+		{
+			for (int j = 0; j < ancho; ++j)
+			{
+				for (int ki = 0; ki < kernel.length; ++ki)
+					for (int kj = 0; kj < kernel.length; ++kj)
+						salida[i][j] += entrada[mod(i + ki - despl, alto)][mod(j + kj - despl, ancho)] * kernel[ki][kj];
+				
+				if (salida[i][j] > 1)
+					salida[i][j] = 1;
+				else
+					if (salida[i][j] < 0)
+						salida[i][j] = 0;
+			}
+		}
+	}
+	
+	private static int mod(int a, int b)
+	{		
+		return (a + b) % b;
+	}
+	
+	public static void main(String[] args)
+	{
+		int tam    = 0;
+		int it     = 0;
+		int tareas = 0;
+		
+		double tic, tac;
+		
+		if (args.length >= 2)
+		{
+			tam         = Integer.parseInt(args[0]);
+			it          = Integer.parseInt(args[1]);
+		}
+		else
+		{
+			if (args.length == 3)
+				tareas = Integer.parseInt(args[1]);
+			else
+			{
+				Scanner teclado = new Scanner(System.in);
+				
+				System.out.println("Uso: java Convolucion <Tamaño> <Iteraciones> [<Tareas>]");
+				
+				System.out.println("Introduce un tamaño válido");
+				tam = teclado.nextInt();
+				System.out.println("Introduce un número de iteraciones");
+				it = teclado.nextInt();
+				System.out.println("Introduce el número de tareas que se usarán");
+				tareas = teclado.nextInt();
+				
+				teclado.close();
+			}
+		}
+		
+		if (tareas < 1)
+			tareas = Runtime.getRuntime().availableProcessors();
+
+		Convolucion convolucion = new Convolucion(tam, tam, tareas);
+
+		
+		tic = System.currentTimeMillis();
+		for (int i = 0; i < it; ++i)
+			convolucion.ejecutar();
+		tac = System.currentTimeMillis();
+		
+		
+		System.out.println("Tiempo: " + ((tac - tic) / it) + " ms.");
+		convolucion.close();
 	}
 }
